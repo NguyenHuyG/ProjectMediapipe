@@ -1,4 +1,3 @@
-# --- import libarary ---
 import time
 import cv2
 import cv2 as cv
@@ -8,29 +7,23 @@ import configparser as cf
 import os
 import datetime as dt
 
-# --- started mediapipe (pose) ---
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
 mp_draw = mp.solutions.drawing_utils
 
-# --- started pygame (sound) ---
 pg.mixer.init()
 Alert_sound = "Sound.mp3"
 pg.mixer.music.load(Alert_sound)
 Alert_LT = 0
 Alert_CD = 3
 
-# --- Reason (Text) ---
 Reason = ["Cui dau thap", "Ngoi lech vai", "Gan mat", "Gap lung"]
 
-# --- Folder parent (folder) ---
 parent_folder = os.getcwd()
 
-# --- Started config (setting) ---
 config = cf.ConfigParser()
 config.read(os.path.join(parent_folder,"Setting.ini"))
 
-# --- play sound (sound) ---
 def play_alert():
     global Alert_LT
     now = time.time()
@@ -39,11 +32,9 @@ def play_alert():
         pg.mixer.music.play()
         Alert_LT = now
 
-# --- Text Show (Text) ---
 def texthide(str):
     cv.putText(img, str, (20, 40), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
-# --- Save Img (Img) ---
 def SaveImg(img, reason):
     folder_path = os.path.join(parent_folder,"Capture")
     os.makedirs(folder_path, exist_ok=True)
@@ -55,7 +46,6 @@ def SaveImg(img, reason):
 
     cv.imwrite(file_path,img)
 
-# --- Open Webcame (Webcame) ---
 cap = cv.VideoCapture(0)
 
 while True:
@@ -70,12 +60,10 @@ while True:
     img_rgb = cv.cvtColor(img, cv2.COLOR_BGR2RGB)
     res = pose.process(img_rgb)
 
-    # --- Check landmarks in body (body) ---
     if res.pose_landmarks:
         lm = res.pose_landmarks.landmark
         mp_draw.draw_landmarks(img, res.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
-        # --- Landmarks position to pixel ---
         nose         = lm[mp_pose.PoseLandmark.NOSE].y * h
         l_shoulder_y = lm[mp_pose.PoseLandmark.LEFT_SHOULDER].y * h
         l_shoulder_x = lm[mp_pose.PoseLandmark.LEFT_SHOULDER].x * w
@@ -88,7 +76,6 @@ while True:
         r_hip_x      = lm[mp_pose.PoseLandmark.RIGHT_EYE].x * w
         r_hip_y      = lm[mp_pose.PoseLandmark.RIGHT_EYE].y * h
 
-        # --- abs (Data) ---
         shoulder_diff = abs(l_shoulder_y - r_shoulder_y)
         eye_dist_px   = abs(l_eye - r_eye)
         L_back_dx     = abs(l_shoulder_x - l_hip_x)
@@ -96,11 +83,9 @@ while True:
         R_back_dx     = abs(l_shoulder_x - l_hip_x)
         R_back_dy     = abs(r_shoulder_y - l_hip_y)
 
-        # --- Sensitivity in setting.ini (setting) ---
         Setting1 = [config.getint("Sensitivity","nose"), config.getint("Sensitivity","shoulder"), config.getint("Sensitivity","eye"), config.getint("Sensitivity","back")]
         Setting2 = config.getboolean("SaveConfig","turn")
 
-        # --- Check and Notification ---
         pose_wrong = False
         if nose - l_shoulder_y > Setting1[0] or nose - r_shoulder_y > Setting1[0]:
             texthide(Reason[0])
@@ -131,7 +116,6 @@ while True:
     if cv2.waitKey(1) == 27:
         break
 
-# Free resources when close app
 cap.release()
 cv.destroyAllWindows()
 pg.mixer.quit()
