@@ -2,10 +2,14 @@ import time
 import cv2
 import cv2 as cv
 import mediapipe as mp
+import pandas as pd
 import pygame as pg
 import configparser as cf
 import os
-import datetime as dt
+import datetime as datetime
+
+CD_1 = 1
+LT_1 = 0
 
 parent_folder = os.getcwd()
 
@@ -20,9 +24,14 @@ Alert_LT = 0
 Alert_CD = 3
 
 Reason = ["Cui dau thap", "Ngoi lech vai", "Gan mat", "Gap lung"]
+Fix = ["Cui dau vua du", "Ngoi dung tu the", "Xa man hinh hon", "Ngoi Thang lung"]
+data = []
 
 config = cf.ConfigParser()
 config.read(os.path.join(parent_folder,"Setting.ini"))
+
+Setting1 = [config.getint("Sensitivity", "nose"), config.getint("Sensitivity", "shoulder"), config.getint("Sensitivity", "eye"), config.getint("Sensitivity", "back")]
+Setting2 = [config.getboolean("SaveConfig", "cap"), config.getboolean("SaveConfig", "excel")]
 
 def play_alert():
     global Alert_LT
@@ -46,7 +55,20 @@ def SaveImg(img, reason):
 
     cv.imwrite(file_path,img)
 
+def AppendData(str1, str2):
+    data.append([datetime.datetime.now().strftime("%H:%M:%S"), str1, str2])
+
+def save_exel():
+    df = pd.DataFrame(data, columns=["Thời gian","Lý do","Khắc phục"])
+    df.to_excel(file_name, index=False)
+
 cap = cv.VideoCapture(0)
+
+excel_folder = os.path.join(parent_folder, "Logs")
+os.makedirs(excel_folder, exist_ok=True)
+
+now = datetime.datetime.now()
+file_name = os.path.join(excel_folder, now.strftime("log_%Y-%m-%d_%H-%M-%S.xlsx"))
 
 while True:
     ret, img = cap.read()
@@ -83,33 +105,47 @@ while True:
         R_back_dx     = abs(l_shoulder_x - l_hip_x)
         R_back_dy     = abs(r_shoulder_y - l_hip_y)
 
-        Setting1 = [config.getint("Sensitivity","nose"), config.getint("Sensitivity","shoulder"), config.getint("Sensitivity","eye"), config.getint("Sensitivity","back")]
-        Setting2 = config.getboolean("SaveConfig","turn")
+        current_time = time.time()
 
-        pose_wrong = False
         if nose - l_shoulder_y > Setting1[0] or nose - r_shoulder_y > Setting1[0]:
             texthide(Reason[0])
             play_alert()
-            if Setting2:
-                SaveImg(img, Reason[0])
+            if current_time - LT_1 >= CD_1:
+                LT_1 = time.time()
+                if Setting2[0]:
+                    SaveImg(img, Reason[0])
+                if Setting2[1]:
+                    AppendData(Reason[0],Fix[0])
 
         if shoulder_diff > Setting1[1]:
             texthide(Reason[1])
             play_alert()
-            if Setting2:
-                SaveImg(img, Reason[1])
+            if current_time - LT_1 >= CD_1:
+                LT_1 = time.time()
+                if Setting2[0]:
+                    SaveImg(img, Reason[1])
+                if Setting2[1]:
+                    AppendData(Reason[1],Fix[1])
 
         if eye_dist_px > Setting1[2]:
             texthide(Reason[2])
             play_alert()
-            if Setting2:
-                SaveImg(img, Reason[2])
+            if current_time - LT_1 >= CD_1:
+                LT_1 = time.time()
+                if Setting2[2]:
+                    SaveImg(img, Reason[2])
+                if Setting2[1]:
+                    AppendData(Reason[2],Fix[2])
 
         if L_back_dy < Setting1[3] and L_back_dx > Setting1[3] and not pose_wrong or R_back_dy < Setting1[3] and R_back_dx > Setting1[3]:
             texthide(Reason[3])
             play_alert()
-            if Setting2:
-                SaveImg(img, Reason[3])
+            if current_time - LT_1 >= CD_1:
+                LT_1 = time.time()
+                if Setting2[0]:
+                    SaveImg(img, Reason[3])
+                if Setting2[1]:
+                    AppendData(Reason[3],Fix[3])
 
     cv.imshow("T1", img)
 
@@ -119,3 +155,4 @@ while True:
 cap.release()
 cv.destroyAllWindows()
 pg.mixer.quit()
+save_exel()
