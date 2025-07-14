@@ -6,6 +6,7 @@ import mediapipe as mp
 import pygame as pg
 import configparser as cf
 import os
+import datetime as dt
 
 # --- started mediapipe (pose) ---
 mp_pose = mp.solutions.pose
@@ -18,6 +19,9 @@ Alert_sound = "alert.mp3"
 pg.mixer.music.load(Alert_sound)
 Alert_LT = 0
 Alert_CD = 3
+
+# --- Reason (Text) ---
+Reason = ["Cui dau thap", "Ngoi lech vai", "Gan mat", "Gap lung"]
 
 # --- Folder parent (folder) ---
 parent_folder = os.getcwd()
@@ -35,9 +39,21 @@ def play_alert():
         pg.mixer.music.play()
         Alert_LT = now
 
-# --- text hide (Text) ---
+# --- Text Show (Text) ---
 def texthide(str):
     cv.putText(img, str, (20, 40), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+# --- Save Img (Img) ---
+def SaveImg(img, reason):
+    folder_path = os.path.join(parent_folder,"Capture")
+    os.makedirs(folder_path, exist_ok=True)
+
+    now = dt.datetime.now()
+    time_str = now.strftime("%Y-%m-%d_%H-%M-%S")
+    file_name = f"{reason}_{time_str}.jpg"
+    file_path = os.path.join(folder_path, file_name)
+
+    cv.imwrite(file_path,img)
 
 # --- Open Webcame (Webcame) ---
 cap = cv.VideoCapture(0)
@@ -65,8 +81,8 @@ while True:
         l_shoulder_x = lm[mp_pose.PoseLandmark.LEFT_SHOULDER].x * w
         r_shoulder_y = lm[mp_pose.PoseLandmark.RIGHT_SHOULDER].y * h
         r_shoulder_x = lm[mp_pose.PoseLandmark.RIGHT_SHOULDER].x * w
-        l_eye        = lm[mp_pose.PoseLandmark.LEFT_EYE].y * h
-        r_eye        = lm[mp_pose.PoseLandmark.RIGHT_EYE].y * h
+        l_eye        = lm[mp_pose.PoseLandmark.LEFT_EYE].x * w
+        r_eye        = lm[mp_pose.PoseLandmark.RIGHT_EYE].x * w
         l_hip_x      = lm[mp_pose.PoseLandmark.LEFT_HIP].x * w
         l_hip_y      = lm[mp_pose.PoseLandmark.LEFT_HIP].y * h
         r_hip_x      = lm[mp_pose.PoseLandmark.RIGHT_EYE].x * w
@@ -82,23 +98,33 @@ while True:
 
         # --- Sensitivity in setting.ini (setting) ---
         Setting1 = [config.getint("Sensitivity","nose"), config.getint("Sensitivity","shoulder"), config.getint("Sensitivity","eye"), config.getint("Sensitivity","back")]
+        Setting2 = config.getboolean("SaveConfig","turn")
 
         # --- Check and Notification ---
-        if nose - l_shoulder_y > Setting1[0] or nose - r_shoulder_y > Setting1[0]:
-            texthide("Cui dau thap")
+        pose_wrong = False
+        if nose - l_shoulder_y > Setting1[0] or nose - r_shoulder_y > Setting1[0] and not pose_wrong:
+            texthide(Reason[0])
             play_alert()
+            if Setting2:
+                SaveImg(img, Reason[0])
 
-        if shoulder_diff > Setting1[1]:
-            texthide("Ngoi lech vai")
+        if shoulder_diff > Setting1[1] and not pose_wrong:
+            texthide(Reason[1])
             play_alert()
+            if Setting2:
+                SaveImg(img, Reason[1])
 
-        if eye_dist_px > Setting1[2]:
-            texthide("Gan man hinh")
+        if eye_dist_px > Setting1[2] and not pose_wrong:
+            texthide(Reason[2])
             play_alert()
+            if Setting2:
+                SaveImg(img, Reason[2])
 
-        if L_back_dy > Setting1[3] and L_back_dx < Setting1[3] or R_back_dy > Setting1[3] and R_back_dx > Setting1[3]:
-            texthide("Gap lung")
+        if L_back_dy < Setting1[3] and L_back_dx > Setting1[3] and not pose_wrong or R_back_dy < Setting1[3] and R_back_dx > Setting1[3] and not pose_wrong:
+            texthide(Reason[3])
             play_alert()
+            if Setting2:
+                SaveImg(img, Reason[3])
 
     cv.imshow("T1", img)
 
