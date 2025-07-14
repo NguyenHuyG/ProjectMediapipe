@@ -33,6 +33,9 @@ config.read(os.path.join(parent_folder,"Setting.ini"))
 Setting1 = [config.getint("Sensitivity", "nose"), config.getint("Sensitivity", "shoulder"), config.getint("Sensitivity", "eye"), config.getint("Sensitivity", "back")]
 Setting2 = [config.getboolean("SaveConfig", "cap"), config.getboolean("SaveConfig", "excel")]
 
+CD_1 = config.getint("Index","CD_1")
+LT_1 = 0
+
 def play_alert():
     global Alert_LT
     now = time.time()
