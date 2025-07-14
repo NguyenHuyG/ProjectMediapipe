@@ -15,7 +15,7 @@ mp_draw = mp.solutions.drawing_utils
 
 # --- started pygame (sound) ---
 pg.mixer.init()
-Alert_sound = "alert.mp3"
+Alert_sound = "Sound.mp3"
 pg.mixer.music.load(Alert_sound)
 Alert_LT = 0
 Alert_CD = 3
@@ -102,25 +102,25 @@ while True:
 
         # --- Check and Notification ---
         pose_wrong = False
-        if nose - l_shoulder_y > Setting1[0] or nose - r_shoulder_y > Setting1[0] and not pose_wrong:
+        if nose - l_shoulder_y > Setting1[0] or nose - r_shoulder_y > Setting1[0]:
             texthide(Reason[0])
             play_alert()
             if Setting2:
                 SaveImg(img, Reason[0])
 
-        if shoulder_diff > Setting1[1] and not pose_wrong:
+        if shoulder_diff > Setting1[1]:
             texthide(Reason[1])
             play_alert()
             if Setting2:
                 SaveImg(img, Reason[1])
 
-        if eye_dist_px > Setting1[2] and not pose_wrong:
+        if eye_dist_px > Setting1[2]:
             texthide(Reason[2])
             play_alert()
             if Setting2:
                 SaveImg(img, Reason[2])
 
-        if L_back_dy < Setting1[3] and L_back_dx > Setting1[3] and not pose_wrong or R_back_dy < Setting1[3] and R_back_dx > Setting1[3] and not pose_wrong:
+        if L_back_dy < Setting1[3] and L_back_dx > Setting1[3] and not pose_wrong or R_back_dy < Setting1[3] and R_back_dx > Setting1[3]:
             texthide(Reason[3])
             play_alert()
             if Setting2:
