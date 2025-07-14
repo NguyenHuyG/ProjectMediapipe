@@ -7,19 +7,19 @@ import configparser as cf
 import os
 import datetime as dt
 
+parent_folder = os.getcwd()
+
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
 mp_draw = mp.solutions.drawing_utils
 
 pg.mixer.init()
-Alert_sound = "Sound.mp3"
+Alert_sound = os.path.join(parent_folder, "Sound.mp3")
 pg.mixer.music.load(Alert_sound)
 Alert_LT = 0
 Alert_CD = 3
 
 Reason = ["Cui dau thap", "Ngoi lech vai", "Gan mat", "Gap lung"]
-
-parent_folder = os.getcwd()
 
 config = cf.ConfigParser()
 config.read(os.path.join(parent_folder,"Setting.ini"))
