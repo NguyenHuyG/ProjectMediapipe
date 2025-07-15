@@ -23,7 +23,7 @@ Alert_CD = 3
 Text_LT = 0
 Text_CD = 3
 
-Reason = ["Cui dau thap", "Ngoi lech vai", "Gan mat", "Gap lung"]
+Reason = ["Cui dau thap", "Ngoi lech vai", "Gan mang hinh", "Gap lung"]
 Fix = ["Cui dau vua du", "Ngoi dung tu the", "Xa man hinh hon", "Ngoi Thang lung"]
 data = []
 
