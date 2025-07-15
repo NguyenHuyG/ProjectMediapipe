@@ -8,9 +8,6 @@ import configparser as cf
 import os
 import datetime as datetime
 
-CD_1 = 1
-LT_1 = 0
-
 parent_folder = os.getcwd()
 
 mp_pose = mp.solutions.pose
@@ -22,6 +19,9 @@ Alert_sound = os.path.join(parent_folder, "Sound.mp3")
 pg.mixer.music.load(Alert_sound)
 Alert_LT = 0
 Alert_CD = 3
+
+Text_LT = 0
+Text_CD = 3
 
 Reason = ["Cui dau thap", "Ngoi lech vai", "Gan mat", "Gap lung"]
 Fix = ["Cui dau vua du", "Ngoi dung tu the", "Xa man hinh hon", "Ngoi Thang lung"]
@@ -35,6 +35,12 @@ Setting2 = [config.getboolean("SaveConfig", "cap"), config.getboolean("SaveConfi
 
 CD_1 = config.getint("Index","CD_1")
 LT_1 = 0
+
+folder_path = os.path.join(parent_folder, "Capture")
+os.makedirs(folder_path, exist_ok=True)
+
+excel_folder = os.path.join(parent_folder, "Logs")
+os.makedirs(excel_folder, exist_ok=True)
 
 def play_alert():
     global Alert_LT
@@ -66,9 +72,6 @@ def save_exel():
     df.to_excel(file_name, index=False)
 
 cap = cv.VideoCapture(0)
-
-excel_folder = os.path.join(parent_folder, "Logs")
-os.makedirs(excel_folder, exist_ok=True)
 
 now = datetime.datetime.now()
 file_name = os.path.join(excel_folder, now.strftime("log_%Y-%m-%d_%H-%M-%S.xlsx"))
@@ -135,12 +138,12 @@ while True:
             play_alert()
             if current_time - LT_1 >= CD_1:
                 LT_1 = time.time()
-                if Setting2[2]:
+                if Setting2[0]:
                     SaveImg(img, Reason[2])
                 if Setting2[1]:
                     AppendData(Reason[2],Fix[2])
 
-        if L_back_dy < Setting1[3] and L_back_dx > Setting1[3] and not pose_wrong or R_back_dy < Setting1[3] and R_back_dx > Setting1[3]:
+        if L_back_dy < Setting1[3] and L_back_dx > Setting1[3] or R_back_dy < Setting1[3] and R_back_dx > Setting1[3]:
             texthide(Reason[3])
             play_alert()
             if current_time - LT_1 >= CD_1:
