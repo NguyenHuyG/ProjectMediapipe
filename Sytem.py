@@ -51,7 +51,7 @@ def SaveImg(img, reason):
     folder_path = os.path.join(parent_folder,"Capture")
     os.makedirs(folder_path, exist_ok=True)
 
-    now = dt.datetime.now()
+    now = datetime.datetime.now()
     time_str = now.strftime("%Y-%m-%d_%H-%M-%S")
     file_name = f"{reason}_{time_str}.jpg"
     file_path = os.path.join(folder_path, file_name)
