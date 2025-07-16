@@ -7,39 +7,43 @@ import pygame as pg
 import configparser as cf
 import os
 import datetime as datetime
+from mutagen.mp3 import MP3
 
 parent_folder = os.getcwd()
 
-mp_pose = mp.solutions.pose
-pose = mp_pose.Pose()
-mp_draw = mp.solutions.drawing_utils
-
-pg.mixer.init()
 Alert_sound = os.path.join(parent_folder, "Sound.mp3")
-pg.mixer.music.load(Alert_sound)
-Alert_LT = 0
-Alert_CD = 3
-
-Text_LT = 0
-Text_CD = 3
-
-Reason = ["Cui dau thap", "Ngoi lech vai", "Gan mang hinh", "Gap lung"]
-Fix = ["Cui dau vua du", "Ngoi dung tu the", "Xa man hinh hon", "Ngoi Thang lung"]
-data = []
+Alert_Audio = MP3(os.path.join(parent_folder, "Sound.mp3"))
 
 config = cf.ConfigParser()
 config.read(os.path.join(parent_folder,"Setting.ini"))
 
 Setting1 = [config.getint("Sensitivity", "nose"), config.getint("Sensitivity", "shoulder"), config.getint("Sensitivity", "eye"), config.getint("Sensitivity", "back")]
 Setting2 = [config.getboolean("SaveConfig", "cap"), config.getboolean("SaveConfig", "excel")]
+CD_1 = int(round((Alert_Audio.info.length / 2),0)) + 1
+print(CD_1)
 
-CD_1 = config.getint("Index","CD_1")
+mp_pose = mp.solutions.pose
+pose = mp_pose.Pose()
+mp_draw = mp.solutions.drawing_utils
+
+pg.mixer.init()
+pg.mixer.music.load(Alert_sound)
+Alert_LT = 0
+Alert_CD = CD_1
+
+Reason = ["Cui dau thap", "Ngoi lech vai", "Gan mang hinh", "Gap lung"]
+Fix = ["Cui dau vua du", "Ngoi dung tu the", "Xa man hinh hon", "Ngoi Thang lung"]
+data = []
+
 LT_1 = 0
 
-folder_path = os.path.join(parent_folder, "Capture")
+File_path = os.path.join(parent_folder, "File")
+os.makedirs(File_path, exist_ok=True)
+
+folder_path = os.path.join(File_path, "Capture")
 os.makedirs(folder_path, exist_ok=True)
 
-excel_folder = os.path.join(parent_folder, "Logs")
+excel_folder = os.path.join(File_path, "Logs")
 os.makedirs(excel_folder, exist_ok=True)
 
 def play_alert():
@@ -116,6 +120,8 @@ while True:
         if nose - l_shoulder_y > Setting1[0] or nose - r_shoulder_y > Setting1[0]:
             texthide(Reason[0])
             play_alert()
+            print("1", nose, l_shoulder_y, nose - l_shoulder_y)
+            print("2", nose, r_shoulder_y, nose - r_shoulder_y)
             if current_time - LT_1 >= CD_1:
                 LT_1 = time.time()
                 if Setting2[0]:
@@ -155,7 +161,7 @@ while True:
 
     cv.imshow("T1", img)
 
-    if cv2.waitKey(1) == 27:
+    if cv.waitKey(1) == 27:
         break
 
 cap.release()
