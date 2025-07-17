@@ -30,7 +30,7 @@ pg.mixer.music.load(Alert_sound)
 Alert_LT = 0
 Alert_CD = CD_1
 
-Reason = ["Cui dau thap", "Ngoi lech vai", "Gan mang hinh", "Gap lung"]
+Reason = ["Cui dau thap", "Ngoi lech vai trai","Ngoi lech vai phai", "Gan mang hinh", "Gap lung"]
 Fix = ["Cui dau vua du", "Ngoi dung tu the", "Xa man hinh hon", "Ngoi Thang lung"]
 data = []
 
@@ -130,7 +130,7 @@ while True:
             if l_shoulder_y > r_shoulder_y:
                 texthide(Reason[1], int(round(r_shoulder_x) - 80), int(round(r_shoulder_y) - 35), 0.7)
             else:
-                texthide(Reason[1], int(round(l_shoulder_x) - 80), int(round(l_shoulder_y) - 35), 0.7)
+                texthide(Reason[2], int(round(l_shoulder_x) - 80), int(round(l_shoulder_y) - 35), 0.7)
 
             if current_time - LT_1 >= CD_1:
                 LT_1 = time.time()
@@ -140,7 +140,7 @@ while True:
                     AppendData(Reason[1],Fix[1])
 
         if eye_dist_px > Setting1[2]:
-            texthide(Reason[2], int(round(nose_x) - 200), int(round(nose_y) - 100),1.5)
+            texthide(Reason[3], int(round(nose_x) - 200), int(round(nose_y) - 100),1.5)
             play_alert()
             if current_time - LT_1 >= CD_1:
                 LT_1 = time.time()
@@ -150,7 +150,7 @@ while True:
                     AppendData(Reason[2],Fix[2])
 
         if L_back_dy < Setting1[3] and L_back_dx > Setting1[3] or R_back_dy < Setting1[3] and R_back_dx > Setting1[3]:
-            texthide(Reason[3], 20, 40, 0.7)
+            texthide(Reason[4], 20, 40, 0.7)
             play_alert()
             if current_time - LT_1 >= CD_1:
                 LT_1 = time.time()
