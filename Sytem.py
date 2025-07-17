@@ -35,6 +35,7 @@ Fix = ["Cui dau vua du", "Ngoi dung tu the", "Xa man hinh hon", "Ngoi Thang lung
 data = []
 
 LT_1 = 0
+LT_2 = 0
 
 File_path = os.path.join(parent_folder, "File")
 os.makedirs(File_path, exist_ok=True)
@@ -52,8 +53,8 @@ def play_alert():
         pg.mixer.music.play()
         Alert_LT = now
 
-def texthide(str):
-    cv.putText(img, str, (20, 40), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+def texthide(str,x,y,s):
+    cv.putText(img, str, (x, y), cv.FONT_HERSHEY_SIMPLEX, s, (0, 0, 255), 2)
 
 def SaveImg(img, reason):
     now = datetime.datetime.now()
@@ -92,7 +93,8 @@ while True:
         lm = res.pose_landmarks.landmark
         mp_draw.draw_landmarks(img, res.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
-        nose         = lm[mp_pose.PoseLandmark.NOSE].y * h
+        nose_y       = lm[mp_pose.PoseLandmark.NOSE].y * h
+        nose_x       = lm[mp_pose.PoseLandmark.NOSE].x * w
         l_shoulder_y = lm[mp_pose.PoseLandmark.LEFT_SHOULDER].y * h
         l_shoulder_x = lm[mp_pose.PoseLandmark.LEFT_SHOULDER].x * w
         r_shoulder_y = lm[mp_pose.PoseLandmark.RIGHT_SHOULDER].y * h
@@ -113,8 +115,8 @@ while True:
 
         current_time = time.time()
 
-        if nose - l_shoulder_y > Setting1[0] or nose - r_shoulder_y > Setting1[0]:
-            texthide(Reason[0])
+        if nose_y - l_shoulder_y > Setting1[0] or nose_y - r_shoulder_y > Setting1[0]:
+            texthide(Reason[0], int(round(nose_x,0) + 25), int(round(nose_y,0) - 25), 0.7)
             play_alert()
             if current_time - LT_1 >= CD_1:
                 LT_1 = time.time()
@@ -124,8 +126,12 @@ while True:
                     AppendData(Reason[0],Fix[0])
 
         if shoulder_diff > Setting1[1]:
-            texthide(Reason[1])
             play_alert()
+            if l_shoulder_y > r_shoulder_y:
+                texthide(Reason[1], int(round(r_shoulder_x) - 80), int(round(r_shoulder_y) - 35), 0.7)
+            else:
+                texthide(Reason[1], int(round(l_shoulder_x) - 80), int(round(l_shoulder_y) - 35), 0.7)
+
             if current_time - LT_1 >= CD_1:
                 LT_1 = time.time()
                 if Setting2[0]:
@@ -134,7 +140,7 @@ while True:
                     AppendData(Reason[1],Fix[1])
 
         if eye_dist_px > Setting1[2]:
-            texthide(Reason[2])
+            texthide(Reason[2], int(round(nose_x) - 200), int(round(nose_y) - 100),1.5)
             play_alert()
             if current_time - LT_1 >= CD_1:
                 LT_1 = time.time()
@@ -144,7 +150,7 @@ while True:
                     AppendData(Reason[2],Fix[2])
 
         if L_back_dy < Setting1[3] and L_back_dx > Setting1[3] or R_back_dy < Setting1[3] and R_back_dx > Setting1[3]:
-            texthide(Reason[3])
+            texthide(Reason[3], 20, 40, 0.7)
             play_alert()
             if current_time - LT_1 >= CD_1:
                 LT_1 = time.time()
