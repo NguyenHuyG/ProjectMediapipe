@@ -34,8 +34,7 @@ Reason = ["Cui dau thap", "Ngoi lech vai trai","Ngoi lech vai phai", "Gan mang h
 Fix = ["Cui dau vua du", "Ngoi dung tu the", "Xa man hinh hon", "Ngoi Thang lung"]
 data = []
 
-LT_1 = 0
-LT_2 = 0
+LT_1 = [0,0,0,0,0]
 
 File_path = os.path.join(parent_folder, "File")
 os.makedirs(File_path, exist_ok=True)
@@ -118,8 +117,8 @@ while True:
         if nose_y - l_shoulder_y > Setting1[0] or nose_y - r_shoulder_y > Setting1[0]:
             texthide(Reason[0], int(round(nose_x,0) + 25), int(round(nose_y,0) - 25), 0.7)
             play_alert()
-            if current_time - LT_1 >= CD_1:
-                LT_1 = time.time()
+            if current_time - LT_1[0] >= CD_1:
+                LT_1[0] = time.time()
                 if Setting2[0]:
                     SaveImg(img, Reason[0])
                 if Setting2[1]:
@@ -132,18 +131,18 @@ while True:
             else:
                 texthide(Reason[2], int(round(l_shoulder_x) - 80), int(round(l_shoulder_y) - 35), 0.7)
 
-            if current_time - LT_1 >= CD_1:
-                LT_1 = time.time()
-                if Setting2[0]:
-                    SaveImg(img, Reason[1])
-                if Setting2[1]:
-                    AppendData(Reason[1],Fix[1])
+            if Setting2[0] and current_time - LT_1[1] >= CD_1:
+                LT_1[1] = time.time()
+                SaveImg(img, Reason[1])
+            if Setting2[1] and current_time - LT_1[2] >= CD_1:
+                LT_1[2] = time.time()
+                AppendData(Reason[2],Fix[1])
 
         if eye_dist_px > Setting1[2]:
             texthide(Reason[3], int(round(nose_x) - 200), int(round(nose_y) - 100),1.5)
             play_alert()
-            if current_time - LT_1 >= CD_1:
-                LT_1 = time.time()
+            if current_time - LT_1[3] >= CD_1:
+                LT_1[3] = time.time()
                 if Setting2[0]:
                     SaveImg(img, Reason[2])
                 if Setting2[1]:
@@ -152,12 +151,12 @@ while True:
         if L_back_dy < Setting1[3] and L_back_dx > Setting1[3] or R_back_dy < Setting1[3] and R_back_dx > Setting1[3]:
             texthide(Reason[4], 20, 40, 0.7)
             play_alert()
-            if current_time - LT_1 >= CD_1:
-                LT_1 = time.time()
+            if current_time - LT_1[4] >= CD_1:
+                LT_1[4] = time.time()
                 if Setting2[0]:
-                    SaveImg(img, Reason[3])
+                    SaveImg(img, Reason[4])
                 if Setting2[1]:
-                    AppendData(Reason[3],Fix[3])
+                    AppendData(Reason[4],Fix[3])
 
     cv.imshow("T1", img)
 
