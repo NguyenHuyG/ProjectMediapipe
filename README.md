@@ -10,7 +10,8 @@ Câu lệnh tải tất cả
 pip install opencv-python mediapipe pygame pandas openpyxl mutagen
 
 Các Idle code: PyCharm và Vs code ,.....
-
+-- PyCharm: https://www.jetbrains.com/pycharm (Khuyên dùng)
+-- VS Code: https://code.visualstudio.com/Download
 Python version hỗ trợ:
 -- Python 3.10
 -- link: https://www.python.org/downloads/release/python-3100
