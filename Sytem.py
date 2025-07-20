@@ -10,15 +10,20 @@ import datetime as datetime
 from mutagen.mp3 import MP3
 
 parent_folder = os.getcwd()
+now = datetime.datetime.now()
 
 Alert_sound = os.path.join(parent_folder, "Sound.mp3")
 Alert_Audio = MP3(os.path.join(parent_folder, "Sound.mp3"))
+
+window_name = "T1"
+cv.namedWindow(window_name, cv.WINDOW_NORMAL)
+cv.resizeWindow(window_name, 640, 480)
 
 config = cf.ConfigParser()
 config.read(os.path.join(parent_folder,"Setting.ini"))
 
 Setting1 = [config.getint("Sensitivity", "nose"), config.getint("Sensitivity", "shoulder"), config.getint("Sensitivity", "eye"), config.getint("Sensitivity", "back")]
-Setting2 = [config.getboolean("SaveConfig", "cap"), config.getboolean("SaveConfig", "excel")]
+Setting2 = [config.getboolean("SaveConfig", "cap"), config.getboolean("SaveConfig", "excel"),config.getboolean("SaveConfig","top")]
 CD_1 = int(round((Alert_Audio.info.length / 2),0)) + 1
 
 mp_pose = mp.solutions.pose
@@ -42,8 +47,15 @@ os.makedirs(File_path, exist_ok=True)
 folder_path = os.path.join(File_path, "Capture")
 os.makedirs(folder_path, exist_ok=True)
 
+timestr = now.strftime("%Y-%m-%d_%H-%M-%S")
+Folder_B_path = os.path.join(folder_path, timestr)
+os.makedirs(Folder_B_path, exist_ok=True)
+
 excel_folder = os.path.join(File_path, "Logs")
 os.makedirs(excel_folder, exist_ok=True)
+
+if Setting2[2]:
+    cv.setWindowProperty(window_name, cv.WND_PROP_TOPMOST, 1)
 
 def play_alert():
     global Alert_LT
@@ -56,10 +68,9 @@ def texthide(str,x,y,s):
     cv.putText(img, str, (x, y), cv.FONT_HERSHEY_SIMPLEX, s, (0, 0, 255), 2)
 
 def SaveImg(img, reason):
-    now = datetime.datetime.now()
-    time_str = now.strftime("%Y-%m-%d_%H-%M-%S")
+    time_str = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     file_name = f"{reason}_{time_str}.jpg"
-    file_path = os.path.join(folder_path, file_name)
+    file_path = os.path.join(Folder_B_path, file_name)
 
     cv.imwrite(file_path,img)
 
@@ -68,7 +79,6 @@ def AppendData(str1, str2):
 
 def save_exel():
     if Setting2[1]:
-        now = datetime.datetime.now()
         file_name = os.path.join(excel_folder, now.strftime("log_%Y-%m-%d_%H-%M-%S.xlsx"))
 
         df = pd.DataFrame(data, columns=["Thời gian","Lý do","Khắc phục"])
@@ -77,7 +87,10 @@ def save_exel():
 cap = cv.VideoCapture(0)
 
 while True:
-    ret, img = cap.read()
+    if Setting2[2]:
+        ret, img = cap.read()
+    else:
+        ret, img = cap.read()
 
     if not ret:
         break
@@ -102,8 +115,8 @@ while True:
         r_eye        = lm[mp_pose.PoseLandmark.RIGHT_EYE].x * w
         l_hip_x      = lm[mp_pose.PoseLandmark.LEFT_HIP].x * w
         l_hip_y      = lm[mp_pose.PoseLandmark.LEFT_HIP].y * h
-        r_hip_x      = lm[mp_pose.PoseLandmark.RIGHT_EYE].x * w
-        r_hip_y      = lm[mp_pose.PoseLandmark.RIGHT_EYE].y * h
+        r_hip_x      = lm[mp_pose.PoseLandmark.RIGHT_HIP].x * w
+        r_hip_y      = lm[mp_pose.PoseLandmark.RIGHT_HIP].y * h
 
         shoulder_diff = abs(l_shoulder_y - r_shoulder_y)
         eye_dist_px   = abs(l_eye - r_eye)
@@ -158,7 +171,7 @@ while True:
                 if Setting2[1]:
                     AppendData(Reason[4],Fix[3])
 
-    cv.imshow("T1", img)
+    cv.imshow(window_name, img)
 
     if cv.waitKey(1) == 27:
         break
